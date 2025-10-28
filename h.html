@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Majority Element Finder</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="font-family: Arial, Helvetica, sans-serif; background:#f7f9fb; margin:0; padding:32px;">
+
+  <div style="max-width:640px; margin:24px auto; background:white; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.08); padding:24px;">
+    <h1 style="margin-top:0; font-size:20px; color:#111;">Majority Element Finder</h1>
+    <p style="margin:6px 0 18px; color:#444;">
+      Enter numbers (one per line or separated by spaces/commas). The app returns the majority element
+      (an element that appears &gt; ⌊n/2⌋ times). If none exists it prints <code>0</code>.
+    </p>
+
+    <label style="display:block; font-weight:600; margin-bottom:6px; color:#333;">Numbers</label>
+    <textarea id="nums" placeholder="e.g. 1 2 3 4 4 4 4 3 4"
+      style="width:100%; min-height:120px; padding:10px; border:1px solid #e1e4e8; border-radius:6px; font-size:14px;"></textarea>
+
+    <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+      <button id="compute"
+        style="cursor:pointer; padding:10px 14px; border:none; border-radius:6px; background:#2563eb; color:#fff; font-weight:700;">
+        Find Majority
+      </button>
+      <button id="example" style="cursor:pointer; padding:10px 14px; border:1px solid #d1d5db; border-radius:6px; background:#fff;">
+        Load Example
+      </button>
+      <span id="info" style="color:#666; font-size:14px;"></span>
+    </div>
+
+    <div id="resultBox" style="margin-top:16px; padding:12px; border-radius:8px; background:#f1f5f9; color:#111; display:none;">
+      <strong>Result:</strong> <span id="result" style="font-weight:700;"></span>
+      <div id="countInfo" style="margin-top:6px; color:#444; font-size:13px;"></div>
+    </div>
+
+    <p style="margin-top:18px; font-size:13px; color:#555;">
+      Notes: This uses a simple hash map (object) in JavaScript to count frequencies and checks if any count &gt; n/2.
+    </p>
+  </div>
+
+  <script>
+    // Parse input: supports newlines, spaces, commas
+    function parseNumbers(text) {
+      if (!text) return [];
+      // split by whitespace or commas
+      const tokens = text.trim().split(/[\s,]+/);
+      const nums = [];
+      for (let t of tokens) {
+        if (t === '') continue;
+        // try parse integer, ignore invalid tokens
+        const v = parseInt(t, 10);
+        if (!isNaN(v)) nums.push(v);
+      }
+      return nums;
+    }
+
+    function findMajority(nums) {
+      const n = nums.length;
+      if (n === 0) return { majority: 0, count: 0 };
+      const freq = Object.create(null);
+      for (const x of nums) {
+        freq[x] = (freq[x] || 0) + 1;
+        if (freq[x] > Math.floor(n / 2)) {
+          return { majority: Number(x), count: freq[x] };
+        }
+      }
+      return { majority: 0, count: 0 }; // none found
+    }
+
+    const computeBtn = document.getElementById('compute');
+    const exampleBtn = document.getElementById('example');
+    const textarea = document.getElementById('nums');
+    const resultBox = document.getElementById('resultBox');
+    const resultSpan = document.getElementById('result');
+    const countInfo = document.getElementById('countInfo');
+    const info = document.getElementById('info');
+
+    computeBtn.addEventListener('click', () => {
+      const nums = parseNumbers(textarea.value);
+      if (nums.length === 0) {
+        info.textContent = 'Please enter one or more numbers.';
+        resultBox.style.display = 'none';
+        return;
+      }
+      info.textContent = '';
+      const res = findMajority(nums);
+      resultSpan.textContent = res.majority;
+      if (res.count > 0) {
+        countInfo.textContent = `Appears ${res.count} time(s) out of ${nums.length} total.`;
+      } else {
+        countInfo.textContent = `No majority element (no element appears more than ⌊${nums.length}/2⌋ times).`;
+      }
+      resultBox.style.display = 'block';
+    });
+
+    exampleBtn.addEventListener('click', () => {
+      // Example input from your prompt
+      textarea.value = "1 2 3 4 4 4 4 3 4";
+      info.textContent = 'Loaded example input.';
+    });
+  </script>
+
+</body>
+</html>
