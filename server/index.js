@@ -225,14 +225,14 @@ app.post('/qr/generate', async (req, res) => {
       const code = tokens.get(jti)?.code
       io.to(`session:${sessionId}`).emit('qr_updated', { imageDataUrl, token, code, expiresAt: new Date(exp * 1000).toISOString(), jti })
       io.to(`session:${sessionId}`).emit('countdown', { secondsRemaining: 30 })
-      return res.json({ sessionId, imageDataUrl, token, expiresAt: new Date(exp * 1000).toISOString(), jti })
+      return res.json({ sessionId, imageDataUrl, token, code, expiresAt: new Date(exp * 1000).toISOString(), jti })
     } catch (imgErr) {
       console.error('QR image generation failed, falling back to token-only:', imgErr)
       // Emit token so clients can render QR locally
       const code = tokens.get(jti)?.code
       io.to(`session:${sessionId}`).emit('qr_updated', { imageDataUrl: null, token, code, expiresAt: new Date(exp * 1000).toISOString(), jti })
       io.to(`session:${sessionId}`).emit('countdown', { secondsRemaining: 30 })
-      return res.json({ sessionId, imageDataUrl: null, token, expiresAt: new Date(exp * 1000).toISOString(), jti, clientRender: true })
+      return res.json({ sessionId, imageDataUrl: null, token, code, expiresAt: new Date(exp * 1000).toISOString(), jti, clientRender: true })
     }
   } catch (e) {
     console.error('QR generate error:', e)
