@@ -7,16 +7,10 @@ export default defineConfig({
     port: 5174,
     host: true,
     proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      },
-      '/socket.io': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        ws: true
-      }
+      '/qr': { target: 'http://localhost:3001', changeOrigin: true },
+      '/sessions': { target: 'http://localhost:3001', changeOrigin: true },
+      '/attendance': { target: 'http://localhost:3001', changeOrigin: true },
+      '/socket.io': { target: 'http://localhost:3001', ws: true, changeOrigin: true }
     }
   }
 });

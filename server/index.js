@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken'
 import QRCode from 'qrcode'
 import http from 'http'
 import { Server as SocketIOServer } from 'socket.io'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 const app = express()
 const server = http.createServer(app)
@@ -81,16 +83,6 @@ io.on('connection', (socket) => {
 })
 
 // Routes
-app.get('/', (_req, res) => res.json({
-  ok: true,
-  service: 'attendance-backend',
-  endpoints: {
-    generateQR: { method: 'POST', path: '/qr/generate', body: '{ sessionId?, courseId }' },
-    scan: { method: 'POST', path: '/attendance/scan', body: '{ token }' },
-    closeSession: { method: 'POST', path: '/sessions/:sessionId/close' },
-    currentQR: { method: 'GET', path: '/sessions/:sessionId/qr' }
-  }
-}))
 
 // Create session (teacher/admin)
 app.post('/sessions', (req, res) => {
@@ -265,8 +257,16 @@ app.post('/sessions/:sessionId/close', (req, res) => {
   return res.json({ sessionId, status: sess.status, endTime: sess.endTime })
 })
 
-const PORT = process.env.PORT || 3001
+// Serve frontend build (same-origin) if available
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const distPath = path.resolve(__dirname, '../dist')
+app.use(express.static(distPath))
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'))
+})
+
+const PORT = process.env.PORT || 5174
 const HOST = process.env.HOST || '0.0.0.0'
-server.listen(PORT, HOST, () => console.log(`Attendance backend listening on http://${HOST}:${PORT}`))
+server.listen(PORT, HOST, () => console.log(`Attendance server (API + SPA) on http://${HOST}:${PORT}`))
 
 
