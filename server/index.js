@@ -14,6 +14,17 @@ const io = new SocketIOServer(server, { cors: { origin: '*' } })
 app.use(cors())
 app.use(express.json())
 
+// Allow clients to call API under '/api' as well as root paths
+// This rewrites '/api/qr/generate' -> '/qr/generate', etc.
+app.use((req, _res, next) => {
+  if (req.url.startsWith('/api/')) {
+    req.url = req.url.slice(4)
+  } else if (req.url === '/api') {
+    req.url = '/'
+  }
+  next()
+})
+
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
 
 // In-memory stores for demo
@@ -23,7 +34,7 @@ const shortCodes = new Map() // code -> jti
 
 // Demo users and enrollments
 const demoEnrollments = new Map() // courseId -> Set(studentId)
-demoEnrollments.set('COURSE1', new Set(['student1', 'student2']))
+demoEnrollments.set('COURSE1', new Set(['student1', 'student2'])) 
 
 function generateToken(sessionId) {
   const jti = `${sessionId}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
