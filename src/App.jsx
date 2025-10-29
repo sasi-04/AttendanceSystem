@@ -23,6 +23,7 @@ import AdminManageStudents from './pages/admin/ManageStudents.jsx'
 import AdminAttendance from './pages/admin/Attendance.jsx'
 import AdminLeaveRequests from './pages/admin/LeaveRequests.jsx'
 import AdminSettings from './pages/admin/Settings.jsx'
+import StudentScanAttendance from './pages/student/Attendance.jsx'
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route element={<ProtectedRoute allow={["student"]} />}> 
           <Route path="/student" element={<StudentLayout />}>
             <Route path="dashboard" element={<StudentDashboard />} />
+            <Route path="attendance" element={<StudentScanAttendance />} />
             <Route path="leave" element={<StudentLeaveManagement />} />
             <Route path="profile" element={<StudentProfile />} />
           </Route>

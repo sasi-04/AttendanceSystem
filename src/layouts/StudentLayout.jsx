@@ -14,6 +14,7 @@ export default function StudentLayout() {
           </div>
           <nav className="p-4 space-y-1">
             <NavLink to="/student/dashboard" className={({isActive})=>`block px-4 py-2 rounded-lg ${isActive? 'bg-indigo-50 text-indigo-700 font-medium':'text-gray-700 hover:bg-gray-100'}`}>Dashboard</NavLink>
+            <NavLink to="/student/attendance" className={({isActive})=>`block px-4 py-2 rounded-lg ${isActive? 'bg-indigo-50 text-indigo-700 font-medium':'text-gray-700 hover:bg-gray-100'}`}>QR Scanner</NavLink>
             <NavLink to="/student/leave" className={({isActive})=>`block px-4 py-2 rounded-lg ${isActive? 'bg-indigo-50 text-indigo-700 font-medium':'text-gray-700 hover:bg-gray-100'}`}>Leave Management</NavLink>
             <NavLink to="/student/profile" className={({isActive})=>`block px-4 py-2 rounded-lg ${isActive? 'bg-indigo-50 text-indigo-700 font-medium':'text-gray-700 hover:bg-gray-100'}`}>Profile</NavLink>
           </nav>
