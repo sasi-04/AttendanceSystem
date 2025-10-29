@@ -9,9 +9,12 @@ import { fileURLToPath } from 'url'
 
 const app = express()
 const server = http.createServer(app)
-const io = new SocketIOServer(server, { cors: { origin: '*' } })
+const allowedOrigins = (process.env.CORS_ORIGIN || '*')
+  .split(',')
+  .map(s => s.trim())
+const io = new SocketIOServer(server, { cors: { origin: allowedOrigins, methods: ['GET','POST'] } })
 
-app.use(cors())
+app.use(cors({ origin: allowedOrigins }))
 app.use(express.json())
 
 // Allow clients to call API under '/api' as well as root paths
