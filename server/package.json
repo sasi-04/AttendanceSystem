@@ -13,7 +13,8 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "qrcode": "^1.5.4",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "nedb-promises": "^6.2.3"
   }
 }
 

@@ -6,8 +6,10 @@ import http from 'http'
 import { Server as SocketIOServer } from 'socket.io'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { initDb, createSession as dbCreateSession, saveToken as dbSaveToken, saveShortCode as dbSaveShortCode, deactivateToken as dbDeactivateToken, deleteShortCode as dbDeleteShortCode, markPresent as dbMarkPresent } from './db.js'
 
 const app = express()
+initDb()
 const server = http.createServer(app)
 const allowedOrigins = (process.env.CORS_ORIGIN || '*')
   .split(',')
@@ -51,6 +53,8 @@ function generateToken(sessionId) {
   } while (shortCodes.has(code))
   tokens.set(jti, { sessionId, expiresAt: exp * 1000, active: true, code })
   shortCodes.set(code, jti)
+  // persist
+  try { dbSaveToken({ jti, sessionId, expiresAt: exp * 1000, active: 1, code }); dbSaveShortCode(code, jti) } catch {}
   return { token, jti, exp }
 }
 
@@ -62,6 +66,7 @@ function scheduleExpiry(jti) {
     const tok = tokens.get(jti)
     if (tok) tok.active = false
     if (tok?.code) shortCodes.delete(tok.code)
+    try { if (tok) dbDeactivateToken(jti); if (tok?.code) dbDeleteShortCode(tok.code) } catch {}
     const sess = sessions.get(t.sessionId)
     if (sess && sess.currentTokenJti === jti) {
       // window expired; keep session active to allow new generations
@@ -116,6 +121,7 @@ app.post('/sessions', (req, res) => {
     tokenExpiresAt: null
   }
   sessions.set(sessionId, session)
+  try { dbCreateSession({ id: sessionId, courseId, startTime: session.startTime, endTime: null, status: 'active', windowSeconds, currentTokenJti: null, tokenExpiresAt: null }) } catch {}
 
   const { token, jti, exp } = generateToken(sessionId)
   session.currentTokenJti = jti
@@ -175,6 +181,7 @@ app.post('/attendance/scan', (req, res) => {
     sess.present.add(studentId)
     tok.active = false
     if (tok.code) shortCodes.delete(tok.code)
+    try { dbMarkPresent(sessionId, studentId); dbDeactivateToken(jti); if (tok.code) dbDeleteShortCode(tok.code) } catch {}
 
     io.to(`session:${sessionId}`).emit('scan_confirmed', {
       sessionId,
